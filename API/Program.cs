@@ -1,20 +1,22 @@
 using Authorization.Infrastructure.DataDB;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
+// Add services to the container.
 
 builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<LearningDBContext>(options =>
-    //options.UseNpgsql(configuration.GetConnectionString("LearningDBContext"))
-    options.UseNpgsql(configuration.GetConnectionString("Host=localhost;Port=5432;Database=authdb;Username=authuser;Password=authpass"))
 
-);
-
+builder.Services.AddDbContext<AuthorizationDbContext>(
+    options =>
+    {
+        options.UseNpgsql(configuration.GetConnectionString("AuthDBContext"));
+    }
+    );
 
 var app = builder.Build();
 
