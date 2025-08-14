@@ -19,6 +19,10 @@ namespace Authorization.Infrastructure.DataDB.Configuration
             builder.HasOne(u => u.AuthData)
                 .WithOne(a => a.User)
                 .HasForeignKey<UserEntity>(u => u.AuthDataEntityId);
+            builder.HasOne(u => u.Role)
+               .WithMany(r => r.Users) 
+               .HasForeignKey(u => u.RoleEntityId)
+               .IsRequired();
         }
     }
 }

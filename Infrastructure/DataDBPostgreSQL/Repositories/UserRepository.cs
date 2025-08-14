@@ -1,26 +1,19 @@
 ﻿using Authorization.Infrastructure.DataDB.Models;
-using Authorization.Infrastructure.Interfaces;
 using System.Text;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using Authorization.Domain.Interfaces;
+using Authorization.Domain.Entities;
 
 namespace Authorization.Infrastructure.DataDB.Repositories
 {
-    public class UserRepository : IUserActionsFromDB, IAuthDataActions
+    public class UserRepository : IUserDomainActions
     {
         private readonly AuthorizationDbContext _learningDBContext;
         public UserRepository(AuthorizationDbContext learningDBContext)
         {
             _learningDBContext = learningDBContext;
         }
-        string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
-        }
-
-
         public async Task<bool> CheckDataAuth(string login, string password)
         {
             var userAuth = await _learningDBContext.AuthData
@@ -29,12 +22,12 @@ namespace Authorization.Infrastructure.DataDB.Repositories
             if (userAuth == null)
                 return false;
 
-            string passwordHash = HashPassword(password);
+            string passwordHash = password;
 
             return userAuth.Password == passwordHash;
         }
 
-        public async Task Create(string name, string email, string login, string password, string[] roles)
+        public async Task<UserDomain> CreateAsync(string login, string password, string name, string email, string[] roles)
         {
             var newUser = new UserEntity()
             {
@@ -44,40 +37,57 @@ namespace Authorization.Infrastructure.DataDB.Repositories
                 AuthData = new AuthDataEntity()
                 {
                     Login = login,
-                    Password = HashPassword(password)
+                    Password = password
                 }
             };
 
             _learningDBContext.Add(newUser);
             await _learningDBContext.SaveChangesAsync();
-        }
-        public async Task UpdateName(Guid userId, string value) 
-        {
-            await _learningDBContext.Users
-                .Where(x=>x.Id == userId)
-                .ExecuteUpdateAsync(u => u.SetProperty(v => v.Name, value));
+            return UserMapper.ToDomain(newUser);
         }
 
-        public async Task UpdateEmail(Guid userId, string value)
+        public async Task<UserDomain> LoginAsync(string login, string password)
         {
-            await _learningDBContext.Users
-                .Where(x => x.Id == userId)
-                .ExecuteUpdateAsync(u => u.SetProperty(v => v.Email, value));
+            var account= await _learningDBContext.Users.FirstAsync(x => x.AuthData.Login == login&& x.AuthData.Password == password);
+            return UserMapper.ToDomain(account);
         }
 
-        public async Task UpdatePassword(Guid userId, string value)
+        public async Task UpdateNameAsync(Guid userId, string newName)
         {
             await _learningDBContext.Users
                 .Where(x => x.Id == userId)
-                .ExecuteUpdateAsync(u => u.SetProperty(v => v.AuthData.Password, HashPassword(value)));
+                .ExecuteUpdateAsync(u => u.SetProperty(v => v.Name, newName));
         }
 
-        public async Task UpdateLogin(Guid userId, string value)
+        public async Task UpdateEmailAsync(Guid userId, string newEmail)
         {
             await _learningDBContext.Users
                 .Where(x => x.Id == userId)
-                .ExecuteUpdateAsync(u => u.SetProperty(v => v.AuthData.Login, value));
+                .ExecuteUpdateAsync(u => u.SetProperty(v => v.Email, newEmail));
         }
 
+        public async Task UpdatePasswordAsync(Guid userId, string oldPassword, string newPassword)
+        {
+            var passwordOrigin = _learningDBContext.Users.Any(x => x.Id == userId && x.AuthData.Password == oldPassword);
+            if (!passwordOrigin)
+            {
+                throw new Exception("Старый пароль неверный");
+            }
+            await _learningDBContext.Users
+               .Where(x => x.Id == userId )
+               .ExecuteUpdateAsync(u => u.SetProperty(v => v.AuthData.Password, newPassword));
+        }
+
+        public async Task UpdateLoginAsync(Guid userId, string newLogin)
+        {
+            await _learningDBContext.Users
+                .Where(x => x.Id == userId)
+                .ExecuteUpdateAsync(u => u.SetProperty(v => v.AuthData.Login, newLogin));
+        }
+
+        public async Task<bool> IsLoginFree(string login)
+        {
+            return _learningDBContext.Users.Any(x => x.AuthData.Login == login);
+        }
     }
 }

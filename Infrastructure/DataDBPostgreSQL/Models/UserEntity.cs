@@ -7,9 +7,11 @@ namespace Authorization.Infrastructure.DataDB.Models
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public Guid AuthDataEntityId { get; set; }
-        public AuthDataEntity? AuthData { get; set; }
-        public RoleEntity Role { get; set; }
 
+        public AuthDataEntity? AuthData { get; set; }
+        public Guid AuthDataEntityId { get; set; }
+
+        public RoleEntity Role { get; set; }
+        public Guid RoleEntityId { get; set; }
     }
 }
