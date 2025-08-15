@@ -1,4 +1,5 @@
-﻿using Authorization.Domain.Entities;
+﻿
+using Authorization.Domain.Entities;
 using Authorization.Infrastructure.DataDB.Models;
 using Domain.Entities;
 using Infrastructure.DataDBPostgreSQL.Models;

@@ -1,14 +1,27 @@
+using Application.Interfaces;
+using Authorization.Application.Services;
 using Authorization.Infrastructure.DataDB;
+using Authorization.Infrastructure.DataDB.Repositories;
+using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
-// Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+builder.Services.AddScoped<IHandlerLogin, HandlerLogin>();
+builder.Services.AddScoped<IHandlerRegistration, HandlerRegistration>();
+builder.Services.AddScoped<IHandlerUpdateEmail, HandlerUpdateEmail>();
+builder.Services.AddScoped<IHandlerUpdateLogin, HandlerUpdateLogin>();
+builder.Services.AddScoped<IHandlerUpdateName, HandlerUpdateName>();
+builder.Services.AddScoped<IHandlerUpdatePassword, HandlerUpdatePassword>();
+
+builder.Services.AddScoped<IUserDomainActions, UserRepository>();
+
 
 
 builder.Services.AddDbContext<AuthorizationDbContext>(
@@ -20,7 +33,6 @@ builder.Services.AddDbContext<AuthorizationDbContext>(
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

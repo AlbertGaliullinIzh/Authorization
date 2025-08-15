@@ -1,9 +1,8 @@
 ﻿using Authorization.Infrastructure.DataDB.Models;
-using System.Text;
-using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
-using Authorization.Domain.Interfaces;
 using Authorization.Domain.Entities;
+using Domain.Interfaces;
+using Infrastructure.DataDBPostgreSQL.Models;
 
 namespace Authorization.Infrastructure.DataDB.Repositories
 {
@@ -27,7 +26,7 @@ namespace Authorization.Infrastructure.DataDB.Repositories
             return userAuth.Password == passwordHash;
         }
 
-        public async Task<UserDomain> CreateAsync(string login, string password, string name, string email, string[] roles)
+        public async Task<UserDomain> CreateAsync(string login, string password, string name, string email, string role)
         {
             var newUser = new UserEntity()
             {
@@ -38,7 +37,8 @@ namespace Authorization.Infrastructure.DataDB.Repositories
                 {
                     Login = login,
                     Password = password
-                }
+                },
+            // Добавить роли
             };
 
             _learningDBContext.Add(newUser);

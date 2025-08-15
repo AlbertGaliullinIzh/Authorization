@@ -1,10 +1,10 @@
 ﻿using Authorization.Domain.Entities;
 
-namespace Authorization.Domain.Interfaces
+namespace Domain.Interfaces
 {
     public interface IUserDomainActions
     {
-        Task<UserDomain> CreateAsync(string login, string password, string name, string email, string[] roles);
+        Task<UserDomain> CreateAsync(string login, string password, string name, string email, string role);
         Task<UserDomain> LoginAsync(string login, string password);
         Task UpdateNameAsync(Guid userId, string newName);
         Task UpdateEmailAsync(Guid userId, string newEmail);
