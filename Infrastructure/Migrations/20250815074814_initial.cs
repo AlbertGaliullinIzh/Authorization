@@ -25,7 +25,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RoleEntity",
+                name: "Roles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -33,7 +33,7 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RoleEntity", x => x.Id);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -44,7 +44,7 @@ namespace Infrastructure.Migrations
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     AuthDataEntityId = table.Column<Guid>(type: "uuid", nullable: false),
-                    RoleId = table.Column<Guid>(type: "uuid", nullable: false)
+                    RoleEntityId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -56,47 +56,12 @@ namespace Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Users_RoleEntity_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "RoleEntity",
+                        name: "FK_Users_Roles_RoleEntityId",
+                        column: x => x.RoleEntityId,
+                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateTable(
-                name: "RatioUserAndRolesEntity",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    RoleId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RatioUserAndRolesEntity", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RatioUserAndRolesEntity_RoleEntity_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "RoleEntity",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RatioUserAndRolesEntity_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RatioUserAndRolesEntity_RoleId",
-                table: "RatioUserAndRolesEntity",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RatioUserAndRolesEntity_UserId",
-                table: "RatioUserAndRolesEntity",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_AuthDataEntityId",
@@ -105,17 +70,14 @@ namespace Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_RoleId",
+                name: "IX_Users_RoleEntityId",
                 table: "Users",
-                column: "RoleId");
+                column: "RoleEntityId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "RatioUserAndRolesEntity");
-
             migrationBuilder.DropTable(
                 name: "Users");
 
@@ -123,7 +85,7 @@ namespace Infrastructure.Migrations
                 name: "AuthData");
 
             migrationBuilder.DropTable(
-                name: "RoleEntity");
+                name: "Roles");
         }
     }
 }

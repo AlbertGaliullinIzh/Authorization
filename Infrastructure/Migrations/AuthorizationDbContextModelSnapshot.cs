@@ -61,7 +61,7 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("RoleId")
+                    b.Property<Guid>("RoleEntityId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -69,30 +69,9 @@ namespace Infrastructure.Migrations
                     b.HasIndex("AuthDataEntityId")
                         .IsUnique();
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("RoleEntityId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Infrastructure.DataDBPostgreSQL.Models.RatioUserAndRolesEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RatioUserAndRolesEntity");
                 });
 
             modelBuilder.Entity("Infrastructure.DataDBPostgreSQL.Models.RoleEntity", b =>
@@ -107,7 +86,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RoleEntity");
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Authorization.Infrastructure.DataDB.Models.UserEntity", b =>
@@ -119,33 +98,14 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Infrastructure.DataDBPostgreSQL.Models.RoleEntity", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleEntityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("AuthData");
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("Infrastructure.DataDBPostgreSQL.Models.RatioUserAndRolesEntity", b =>
-                {
-                    b.HasOne("Infrastructure.DataDBPostgreSQL.Models.RoleEntity", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Authorization.Infrastructure.DataDB.Models.UserEntity", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Authorization.Infrastructure.DataDB.Models.AuthDataEntity", b =>

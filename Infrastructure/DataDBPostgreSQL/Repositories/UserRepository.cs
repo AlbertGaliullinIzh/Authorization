@@ -28,6 +28,10 @@ namespace Authorization.Infrastructure.DataDB.Repositories
 
         public async Task<UserDomain> CreateAsync(string login, string password, string name, string email, string role)
         {
+            var _role = await _learningDBContext.Roles.FirstOrDefaultAsync(r => r.Name == role);
+
+            if (role == null)
+                throw new Exception($"Роль '{role}' не найдена");
             var newUser = new UserEntity()
             {
                 Id = Guid.NewGuid(),
@@ -38,7 +42,8 @@ namespace Authorization.Infrastructure.DataDB.Repositories
                     Login = login,
                     Password = password
                 },
-            // Добавить роли
+                Role = _role
+
             };
 
             _learningDBContext.Add(newUser);
@@ -48,7 +53,7 @@ namespace Authorization.Infrastructure.DataDB.Repositories
 
         public async Task<UserDomain> LoginAsync(string login, string password)
         {
-            var account= await _learningDBContext.Users.FirstAsync(x => x.AuthData.Login == login&& x.AuthData.Password == password);
+            var account = await _learningDBContext.Users.FirstAsync(x => x.AuthData.Login == login && x.AuthData.Password == password);
             return UserMapper.ToDomain(account);
         }
 
@@ -74,7 +79,7 @@ namespace Authorization.Infrastructure.DataDB.Repositories
                 throw new Exception("Старый пароль неверный");
             }
             await _learningDBContext.Users
-               .Where(x => x.Id == userId )
+               .Where(x => x.Id == userId)
                .ExecuteUpdateAsync(u => u.SetProperty(v => v.AuthData.Password, newPassword));
         }
 
